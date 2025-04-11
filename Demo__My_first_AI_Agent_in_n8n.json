@@ -1,0 +1,808 @@
+{
+  "name": "Demo: My first AI Agent in n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "cbaedf86-9153-4778-b893-a7e50d3e04ba",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "czTffPazQj5Ln7sP",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=oi",
+        "contextWindowLength": 10
+      },
+      "id": "75481370-bade-4d90-a878-3a3b0201edcc",
+      "name": "Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1280,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1BciZOwRjdmRpHApJaB1b8nieUGtE945mXsUtSxBEukE",
+          "mode": "list",
+          "cachedResultName": "CRM Leads Automação",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BciZOwRjdmRpHApJaB1b8nieUGtE945mXsUtSxBEukE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BciZOwRjdmRpHApJaB1b8nieUGtE945mXsUtSxBEukE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nome": "={{ $fromAI('lead_name') }}",
+            "Tem CNH?": "={{ $fromAI('has_cnh') }}",
+            "Session_ID": "={{ $('When chat message received').item.json.sessionId }}"
+          },
+          "matchingColumns": [
+            "Session_ID"
+          ],
+          "schema": [
+            {
+              "id": "Session_ID",
+              "displayName": "Session_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nome",
+              "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tem CNH?",
+              "displayName": "Tem CNH?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1080,
+        -300
+      ],
+      "id": "579c372a-1de8-4fcf-b21b-70a473711b04",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3alId1Drk3OBh89z",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensagem do lead: {{ $('Telegram Trigger').item.json.message.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Você é um agente de qualificação!\nSeu principal papel é descobrir o seguinte sobre o pontencial cliente e em ordem, logo, assim que receber uma mensagem, pergunte o nome da pessoa, assim que ela responder, pergunte se possui CNH e então, fale que um closer entrará em contato para fechar a venda e que você está a disposição para tirar dúvidas\n\n- Nome\n- Se tem CNH\n- Se tem interesse em alugar moto com a Vammo ou entender mais sobre\n- tirar suas dúvidas sobre a vammo com base nas seguintes informações:\n\n1. O que é a Vammo?\nA Vammo oferece aluguel de motos elétricas com tudo incluso:\n🔋 Trocas ilimitadas de bateria em mais de 130 estações.\n🛠️ Manutenção preventiva.\n🚨 Suporte 24h e moto reserva.\n\n2. Quais são os planos e valores?\nContrato Anual:\nKMs ilimitados: R$ 299/semana.\nInclui trocas de bateria ilimitadas, manutenção, suporte 24h e moto reserva.\nContrato Mensal \nKMs ilimitados: R$ 349/semana.\nInclui trocas de bateria ilimitadas, manutenção, suporte 24h e moto reserva.\n\n\n3. Qual é o valor do caução?\nValor: R$ 650.\nFormas de pagamento:\nPIX: Entrada de R$ 325 + 4 parcelas semanais de R$ 81,25.\nCartão: 6x sem entrada.\n\n5. Qual é o modelo da moto?\nModelo: CPX (elétrica, até 100 km/h, 65 km por bateria).\nRecursos: luzes LED, freios CBS, porta-treco, USB, espaço para capa de chuva.\n\n6. Onde posso retirar a moto?\nMooca: Av. Henry Ford, 506.\nVila Olímpia: Rua Santa Justina, 434.\nGalpão Motoparts Diadema: Av. Fábio Eduardo Ramos Esquivel, 2919, Canhema, Diadema - SP.\nHorários de retirada:\nMooca e Vila Olímpia: Seg-Sex: 8h-20h | Sáb-Dom: 9h-16h.\nDiadema: Seg-Sex: 10h-17h | Sáb: 10h-14h.\n\n7. Como funcionam as trocas de bateria?\nMais de 130 estações em São Paulo.\nConfira os pontos de troca no mapa: Google Maps.\n\n8. Como alugar uma moto da Vammo?\nCadastre-se no app da Vammo.\nEnvie sua CNH A (provisória ou definitiva).\nAgende a retirada da moto.\nBaixe o app: Vammo App\n\n9. Qual é o período mínimo de aluguel?\nApenas contrato mensal (não alugamos por dia ou semana).\n\n10. Qual é a área de operação da Vammo?\nGrande São Paulo, incluindo Guarulhos, ABC e Osasco.\n\n11. Quais são os principais benefícios de alugar uma moto da Vammo?\nEconomia: Sem gastos com combustível, até R$ 150 de economia por semana.\nPraticidade: Trocas de bateria rápidas (menos de 1 minuto).\nSustentabilidade: Zero emissões de poluentes.\nConfiabilidade: Suporte 24h e moto reserva inclusos.\n\nSe o cliente tiver CNH e interesse, diga que um closer entrará em contato com ele\n"
+        }
+      },
+      "id": "29963449-1dc1-487d-96f2-7ff0a5c3cd97",
+      "name": "Qualificação",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        860,
+        -480
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "23c43560-ae59-4b06-a80c-25cea6dca211",
+      "name": "OpenAI Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        860,
+        -760
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "czTffPazQj5Ln7sP",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensagem do lead: {{ $json.Session_ID }}",
+        "options": {
+          "systemMessage": "Seu nome é Jorge potter\nSeu objetivo é converter leads em clientes da Vammo, uma empresa que aluga motos\nPergunte a forma de pagamento\nTire as dúvidas dos clientes com foco em vendas\n\n\n"
+        }
+      },
+      "id": "23621048-ff1a-4833-aa03-4008cfd44780",
+      "name": "Closer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        860,
+        -960
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "=1BciZOwRjdmRpHApJaB1b8nieUGtE945mXsUtSxBEukE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BciZOwRjdmRpHApJaB1b8nieUGtE945mXsUtSxBEukE/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Session_ID",
+              "lookupValue": "ao receber uma nova mensagem de um cliente, validar se ele possui CNH buscando o seu session ID"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        280,
+        -680
+      ],
+      "id": "2f5977df-6273-4572-adaa-e523bc101bd4",
+      "name": "Google Sheets2",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3alId1Drk3OBh89z",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "96a771c6-7236-410d-9664-3ca890c08762",
+                    "leftValue": "={{ $json['Tem CNH?'] }}",
+                    "rightValue": "Sim",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Tem CNH"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ca956dd5-294b-4f82-9195-e3b83b453801",
+                    "leftValue": "={{ $json['Tem CNH?'] }}",
+                    "rightValue": "Não",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Não tem CNH"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['Tem CNH?'] }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notExists",
+                      "singleValue": true
+                    },
+                    "id": "6e3c43eb-5acb-4701-9173-c8d6daefdc6a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "sem info da CNH"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        480,
+        -680
+      ],
+      "id": "e233769d-a497-4e36-a18e-be256545e806",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        -620
+      ],
+      "id": "81bf7b9f-2c4c-4585-927c-d73d6374c20d",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_-TBvnUtGZu8HZluzKAASRaaj_cS1JgxDIpMbgQU4Us",
+          "mode": "list",
+          "cachedResultName": "Histórico de mensagens",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_-TBvnUtGZu8HZluzKAASRaaj_cS1JgxDIpMbgQU4Us/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_-TBvnUtGZu8HZluzKAASRaaj_cS1JgxDIpMbgQU4Us/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Mensagem Jorge": "={{ $json.output }}",
+            "Session_ID": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+            "Mensagem lead": "={{ $('Telegram Trigger').item.json.message.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Session_ID",
+              "displayName": "Session_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mensagem lead",
+              "displayName": "Mensagem lead",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mensagem Jorge",
+              "displayName": "Mensagem Jorge",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1540,
+        -660
+      ],
+      "id": "5f2f421b-9df9-45b3-913c-1fbba64e86b5",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3alId1Drk3OBh89z",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        60,
+        -680
+      ],
+      "id": "9c41413f-a916-4263-9393-f9f3ed201ff5",
+      "name": "Telegram Trigger",
+      "webhookId": "7477b0a1-0b18-4df6-80a9-3a9c61b5f5d3",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqS65jAgrzvx0xvZ",
+          "name": "Telegram account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        -940
+      ],
+      "id": "cbd9a50f-d4ad-40fe-bb5b-bce8c5ee28eb",
+      "name": "Telegram",
+      "webhookId": "c41b4033-ad41-4544-909a-92b30a377529",
+      "credentials": {
+        "telegramApi": {
+          "id": "WqS65jAgrzvx0xvZ",
+          "name": "Telegram account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Você é um assistente de análise de dados e produtividade. Com base nas conversas armazenadas na planilha, gere um relatório de desempenho das interações com os leads da Vammo.\n\nFormate o e-mail em HTML, com a seguinte estrutura:\n\n<h2>📊 Visão Quantitativa</h2>\n<ul>\n  <li><strong>Total de Leads Conversados:</strong> [preencha]</li>\n  <li><strong>Leads com CNH:</strong> [preencha]</li>\n  <li><strong>Leads sem CNH:</strong> [preencha]</li>\n  <li><strong>Leads encaminhados para o Closer:</strong> [preencha]</li>\n</ul>\n\n<h2>⚠️ Sinais de Insatisfação</h2>\n<p>Quantos leads demonstraram raiva ou insatisfação?</p>\n<ul>\n  <li><strong>Nome:</strong> [preencha] - <strong>ID:</strong> [preencha] - \"Mensagem do lead\"</li>\n  <!-- Repita conforme necessário -->\n</ul>\n\n<h2>💬 Análise da Qualidade das Conversas</h2>\n<p>As conversas estão fluindo bem? Há ruídos, dúvidas mal resolvidas? Dê exemplos.</p>\n\n<h2>🔧 Sugestões de Melhoria</h2>\n<ul>\n  <li>Sobre qualificação</li>\n  <li>Sobre linguagem do assistente</li>\n  <li>Sobre encaminhamento para o closer</li>\n</ul>\n\n<h2>🙌 Conclusão</h2>\n<p>Mensagem final para o time, encorajando ou destacando pontos fortes.</p>\n\n<strong>Atenciosamente,<br>Seu Nome<br>Seu Cargo</strong>\n\nFormate todos os blocos com <h2>, <ul>, <li>, <p> e <strong>. Não adicione tags <html>, <head> ou <body>. Apenas o corpo do e-mail.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "**IMPORTANTE:**  \n- Escreva o e-mail em tópicos e subtópicos.\n- Use títulos em negrito, bullet points (`-`) para listas e numeração onde necessário.\n- Formate como se fosse um e-mail corporativo, claro e direto.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        440,
+        -1380
+      ],
+      "id": "c08144da-d8f9-40f5-9e0b-2413191875f1",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        360,
+        -1180
+      ],
+      "id": "0128db87-c8e7-48e6-b6e8-65ac35c817b4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "czTffPazQj5Ln7sP",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "lucas.barbosa@aluno.lsb.com.br",
+        "subject": "Relatório do BOT",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        -1380
+      ],
+      "id": "47065e39-431b-4374-9942-ac6f38cdd4b6",
+      "name": "Gmail",
+      "webhookId": "dc11b7f4-649d-4300-a71a-3687934f2ace",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FIxHJwlYZgWwsCi2",
+          "name": "Gmail account 12"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use esta ferramenta para contar a quantidade de leads (IDs diferentes), quantos possuem CNH e quantos não possuem",
+        "documentId": {
+          "__rl": true,
+          "value": "1BciZOwRjdmRpHApJaB1b8nieUGtE945mXsUtSxBEukE",
+          "mode": "list",
+          "cachedResultName": "CRM Leads Automação",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BciZOwRjdmRpHApJaB1b8nieUGtE945mXsUtSxBEukE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BciZOwRjdmRpHApJaB1b8nieUGtE945mXsUtSxBEukE/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        800,
+        -1220
+      ],
+      "id": "f9ff1a0d-ecea-4a67-9a60-d738b421cc3a",
+      "name": "Google Sheets5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3alId1Drk3OBh89z",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use esta ferramenta para ler os históricos de mensagens para fazer suas análises",
+        "documentId": {
+          "__rl": true,
+          "value": "1_-TBvnUtGZu8HZluzKAASRaaj_cS1JgxDIpMbgQU4Us",
+          "mode": "list",
+          "cachedResultName": "Histórico de mensagens",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_-TBvnUtGZu8HZluzKAASRaaj_cS1JgxDIpMbgQU4Us/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_-TBvnUtGZu8HZluzKAASRaaj_cS1JgxDIpMbgQU4Us/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        -1160
+      ],
+      "id": "83287f5b-f5ee-47bc-850e-47755dd40ddf",
+      "name": "Google Sheets6",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3alId1Drk3OBh89z",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 20,
+              "triggerAtMinute": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        -1340
+      ],
+      "id": "096e039c-b59b-4b03-9324-44b8a3aa8d53",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Qualificação",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Qualificação",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Closer",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Qualificação",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualificação": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Closer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Closer": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Closer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Qualificação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        []
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets5": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets6": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bd4f7407-b01d-4001-b122-e3f22ac767b2",
+  "meta": {
+    "templateId": "PT1i+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHU=",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8327181bf8ea62340600b3ae4ca86492534f0ba868c9ce1479915683578b80fd"
+  },
+  "id": "m0YplO7137cceel0",
+  "tags": []
+}
